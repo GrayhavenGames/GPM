@@ -41,9 +41,53 @@ func LoadConfig(path string) (UserConfig, error) {
 	var cfg UserConfig
 	data, err := os.ReadFile(path)
 	if err != nil {
+		// If file does not exist, return an empty config
+		if os.IsNotExist(err) {
+			return UserConfig{}, nil
+		}
 		return cfg, err
 	}
 
 	err = yaml.Unmarshal(data, &cfg)
 	return cfg, err
+}
+
+// UpdateGithubUsername updates the GithubUsername field in the config
+func UpdateGithubUsername(username string) error {
+	configPath, err := GetConfigPath()
+	if err != nil {
+		return fmt.Errorf("failed to get config path: %w", err)
+	}
+
+	// Load existing config
+	cfg, err := LoadConfig(configPath)
+	if err != nil {
+		return fmt.Errorf("failed to load config: %w", err)
+	}
+
+	// Update the username
+	cfg.GithubUsername = username
+
+	// Save updated config
+	return SaveConfig(configPath, cfg)
+}
+
+// UpdateDefaultURL updates the DefaultURL field in the config
+func UpdateDefaultURL(url string) error {
+	configPath, err := GetConfigPath()
+	if err != nil {
+		return fmt.Errorf("failed to get config path: %w", err)
+	}
+
+	// Load existing config
+	cfg, err := LoadConfig(configPath)
+	if err != nil {
+		return fmt.Errorf("failed to load config: %w", err)
+	}
+
+	// Update the default URL
+	cfg.DefaultURL = url
+
+	// Save updated config
+	return SaveConfig(configPath, cfg)
 }
