@@ -30,7 +30,7 @@ import (
 
 // Flags for updating configuration
 var githubUsername string
-var githubDefaultURL string
+var defaultRepositoryURL string
 
 // configUpdateCmd represents the `gpm config update` command
 var configUpdateCmd = &cobra.Command{
@@ -44,26 +44,26 @@ var configUpdateCmd = &cobra.Command{
 
 		// Update GitHub Username
 		if githubUsername != "" {
-			if err := config.UpdateGithubUsername(githubUsername); err != nil {
-				fmt.Println("⚠ Error updating GitHub username:", err)
-			} else {
-				fmt.Println("✔ GitHub username updated successfully!")
-				updated = true
+			n := config.NewGithubUsername()
+			err := n.Update(githubUsername)
+			if err != nil {
+				fmt.Println("Could not update config file: ", err)
 			}
+			updated = true
 		}
 
 		// Update Default URL
-		if githubDefaultURL != "" {
-			if err := config.UpdateDefaultURL(githubDefaultURL); err != nil {
-				fmt.Println("⚠ Error updating default URL:", err)
-			} else {
-				fmt.Println("✔ Default URL updated successfully!")
-				updated = true
+		if defaultRepositoryURL != "" {
+			n := config.NewDefaultRepositoryURL()
+			err := n.Update(defaultRepositoryURL)
+			if err != nil {
+				fmt.Println("Could not update config file: ", err)
 			}
+			updated = true
 		}
 
 		if !updated {
-			fmt.Println("⚠ No updates were provided. Use --github-username or --github-default-url.")
+			fmt.Println("⚠ No updates were provided. Use --github-username or --default-url.")
 		}
 	},
 }
@@ -78,10 +78,10 @@ var configCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(configCmd)
 
-	// Add `update` as a subcommand of `config`
+	// Update `update` as a subcommand of `config`
 	configCmd.AddCommand(configUpdateCmd)
 
 	// Define flags for `gpm config update`
 	configUpdateCmd.Flags().StringVar(&githubUsername, "github-username", "", "Update GitHub username")
-	configUpdateCmd.Flags().StringVar(&githubDefaultURL, "github-default-url", "", "Update default GitHub repository URL")
+	configUpdateCmd.Flags().StringVar(&defaultRepositoryURL, "default-url", "", "Update default repository URL")
 }
